@@ -1,0 +1,91 @@
+
+# Создаём структуру директорий и core модули
+import os
+
+base_dir = "/mnt/agents/output/qrap-core"
+
+# Структура директорий
+dirs = [
+    "src/crypto",
+    "src/consensus",
+    "src/utxo",
+    "src/network",
+    "src/storage",
+    "src/types",
+    "benches",
+    "tests",
+    "config",
+]
+
+for d in dirs:
+    os.makedirs(os.path.join(base_dir, d), exist_ok=True)
+
+# src/lib.rs - корневой модуль
+lib_rs = '''//! QRAP Core - Quantum-Resistant Anchor Protocol
+//! 
+//! Минимальный PoC: UTXO + Nullifier + базовый BFT консенсус
+//! 
+//! Архитектура:
+//! - types: базовые типы (Hash, Address, Commitment, Nullifier)
+//! - crypto: криптографические примитивы (Poseidon-like hash, Ring-LWE stub)
+//! - utxo: UTXO engine + Epoch Nullifier Tree
+//! - consensus: базовый BFT (simplified HotStuff)
+//! - network: P2P коммуникация (libp2p stub)
+//! - storage: RocksDB/in-memory backend
+
+pub mod types;
+pub mod crypto;
+pub mod utxo;
+pub mod consensus;
+pub mod network;
+pub mod storage;
+
+use tracing::{info, warn};
+
+/// Версия протокола
+pub const PROTOCOL_VERSION: &str = "0.1.0-testnet";
+
+/// Chain ID для testnet
+pub const TESTNET_CHAIN_ID: u64 = 170206;
+
+/// Размер эпохи (блоков)
+pub const EPOCH_SIZE: u64 = 100;
+
+/// Время блока (секунды)
+pub const BLOCK_TIME_SECS: u64 = 12;
+
+/// Минимальный стейк (в условных единицах)
+pub const MIN_STAKE: u64 = 10_000;
+
+/// Запускает полную ноду
+pub async fn run_node(config: NodeConfig) -> anyhow::Result<()> {
+    info!("Starting QRAP node v{}", PROTOCOL_VERSION);
+    info!("Chain ID: {}", TESTNET_CHAIN_ID);
+    info!("Node type: {:?}", config.node_type);
+    
+    // TODO: инициализация всех компонентов
+    
+    Ok(())
+}
+
+#[derive(Debug, Clone)]
+pub struct NodeConfig {
+    pub node_type: NodeType,
+    pub name: String,
+    pub listen_addr: String,
+    pub data_dir: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NodeType {
+    Validator,
+    FullNode,
+    Prover,
+    Archival,
+}
+'''
+
+with open(os.path.join(base_dir, "src/lib.rs"), "w") as f:
+    f.write(lib_rs)
+
+print("src/lib.rs created")
