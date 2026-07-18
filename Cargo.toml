@@ -1,0 +1,69 @@
+
+# Убираем rand_core из Cargo.toml — он не используется напрямую, может вызвать конфликт
+# Также обновляем Cargo.toml для чистоты
+
+fixed_cargo = """[package]
+name = "qrap-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["TOTAL Protocol Team"]
+description = "Quantum-Resistant Anchor Protocol - Core Implementation"
+license = "MIT"
+
+[dependencies]
+# Cryptography
+sha3 = "0.10"
+blake3 = "1.5"
+rand = "0.8"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+hex = "0.4"
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+[dev-dependencies]
+tokio-test = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "utxo_benchmark"
+harness = false
+"""
+
+with open(f"{base_dir}/Cargo.toml", "w") as f:
+    f.write(fixed_cargo)
+
+print("✅ Cargo.toml updated — removed unused rand_core")
+
+# Создаём финальный архив
+import subprocess
+archive_path = "/mnt/agents/output/qrap-core-v0.1.1-fixed.tar.gz"
+
+subprocess.run([
+    "tar", "-czf", archive_path,
+    "-C", "/mnt/agents/output",
+    "qrap-core"
+], check=True)
+
+import os
+archive_size = os.path.getsize(archive_path)
+print(f"\n✅ Архив создан: {archive_path}")
+print(f"Размер: {archive_size} bytes ({archive_size/1024:.1f} KB)")
