@@ -1,0 +1,69 @@
+
+# Создадим структуру проекта QRAP Rust
+import os
+
+base_dir = "/mnt/agents/output/qrap-core"
+os.makedirs(base_dir, exist_ok=True)
+
+# Cargo.toml
+cargo_toml = """[package]
+name = "qrap-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["TOTAL Protocol Team"]
+description = "Quantum-Resistant Anchor Protocol - Core Implementation"
+license = "MIT"
+
+[dependencies]
+# Cryptography
+sha3 = "0.10"
+blake3 = "1.5"
+rand = "0.8"
+rand_core = "0.6"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+bincode = "1.3"
+
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Networking
+libp2p = { version = "0.53", features = ["tcp", "noise", "yamux", "identify", "kad"] }
+
+# Data structures
+rocksdb = { version = "0.21", optional = true }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+[dev-dependencies]
+tokio-test = "0.4"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "utxo_benchmark"
+harness = false
+
+[features]
+default = ["rocksdb-backend"]
+rocksdb-backend = ["rocksdb"]
+memory-backend = []
+"""
+
+with open(os.path.join(base_dir, "Cargo.toml"), "w") as f:
+    f.write(cargo_toml)
+
+print("Cargo.toml created")
